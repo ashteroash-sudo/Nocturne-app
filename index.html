@@ -48,11 +48,10 @@ body{
 }
 .loading-msg{ color:var(--ink-soft); font-size:0.85rem; margin-top:18px; min-height:1.2em; }
 
-/* ---------- Swipe layout (grid + pubs) ---------- */
+/* ---------- Swipe layout (flex + pubs) ---------- */
 .swipe-layout{
-  display:grid;
-  grid-template-columns:1fr;
-  grid-template-areas: "swipe" "adleft" "adright" "selection";
+  display:flex;
+  flex-direction:column;
   gap:22px;
   width:100%;
   max-width:380px;
@@ -61,21 +60,29 @@ body{
 @media (min-width:900px){
   .swipe-layout{
     max-width:1080px;
-    grid-template-columns: 210px 1fr 210px;
-    grid-template-areas: "adleft swipe adright" "selection selection selection";
-    align-items:start;
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:flex-start;
   }
+  .ad-left{ order:1; }
+  .swipe-col{ order:2; }
+  .ad-right{ order:3; }
+  .selection-banner{ order:4; }
 }
-.swipe-col{ grid-area:swipe; display:flex; flex-direction:column; align-items:center; width:100%; }
+.swipe-col{ display:flex; flex-direction:column; align-items:center; width:100%; }
+@media (min-width:900px){
+  .swipe-col{ flex:1 1 380px; min-width:0; }
+  .ad-box{ flex:0 0 210px; width:210px; }
+  .selection-banner{ flex:0 0 100%; width:100%; }
+}
 
 .ad-box{
   background:var(--card);
   border:1px solid #2a2d31;
   border-radius:14px;
   padding:16px;
+  width:100%;
 }
-.ad-left{ grid-area:adleft; }
-.ad-right{ grid-area:adright; }
 .ad-title{ font-size:0.9rem; font-weight:700; margin-bottom:8px; }
 .ad-price{
   font-size:1.3rem;
@@ -105,7 +112,7 @@ body{
 .testi-name{ font-size:0.78rem; font-weight:700; color:var(--accent1); }
 .testi-quote{ font-size:0.78rem; color:var(--ink-soft); margin-top:2px; font-style:italic; }
 
-.selection-banner{ grid-area:selection; background:var(--card); border:1px solid #2a2d31; border-radius:14px; padding:16px 18px; width:100%; }
+.selection-banner{ background:var(--card); border:1px solid #2a2d31; border-radius:14px; padding:16px 18px; width:100%; }
 .selection-title{ font-size:0.9rem; font-weight:700; margin-bottom:4px; }
 .selection-sub{ font-size:0.75rem; color:var(--ink-soft); margin-bottom:12px; }
 .selection-chips{ display:flex; flex-wrap:wrap; gap:10px; }
