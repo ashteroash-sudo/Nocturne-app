@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nocturne</title>
+<style>
+:root{
+  --bg:#0b0c10;
+  --card:#16181c;
+  --ink:#f0f0f2;
+  --ink-soft:#9a9ea4;
+  --accent1:#ff5f7e;
+  --accent2:#8b5cf6;
+  --grad: linear-gradient(90deg,var(--accent1),var(--accent2));
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:26px 16px 50px;
+}
+
+.view{ display:none; width:100%; max-width:380px; }
+.view.active{ display:flex; flex-direction:column; align-items:center; }
+
+.logo{
+  font-size:2.6rem;
+  font-weight:800;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  margin-bottom:4px;
+}
+.tagline{ color:var(--ink-soft); font-size:0.85rem; margin-bottom:34px; text-align:center; }
+
+/* ---------- Login ---------- */
+#view-login{ margin-top:14vh; }
+.login-box{ width:100%; }
+.login-label{ font-size:0.85rem; color:var(--ink-soft); margin-bottom:8px; }
+.login-input{
+  width:100%;
+  background:var(--card);
+  border:1px solid #2a2d31;
+  border-radius:10px;
+  padding:14px 16px;
+  color:var(--ink);
+  font-size:1rem;
+  margin-bottom:16px;
+}
+.login-input:focus{ outline:none; border-color:var(--accent2); }
+.login-btn{
+  width:100%;
+  background:var(--grad);
+  border:none;
+  border-radius:10px;
+  padding:14px;
+  color:#fff;
+  font-weight:600;
+  font-size:1rem;
+  cursor:pointer;
+}
+.login-btn:disabled{ opacity:0.4; cursor:default; }
+.login-error{ color:var(--accent1); font-size:0.8rem; margin-top:-8px; margin-bottom:12px; min-height:1em; }
+
+/* ---------- Swipe ---------- */
+.topbar{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+.topbar .logo{ font-size:1.5rem; margin-bottom:0; }
+.account-chip{
+  font-size:0.72rem;
+  color:var(--ink-soft);
+  background:var(--card);
+  border:1px solid #2a2d31;
+  border-radius:20px;
+  padding:5px 12px;
+}
+
+.card{
+  width:100%;
+  aspect-ratio:3/4;
+  border-radius:20px;
+  overflow:hidden;
+  position:relative;
+  background:var(--card);
+}
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.card-info{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  padding:20px 18px 16px;
+  background:linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 55%, transparent 100%);
+}
+.card-name{ font-size:1.4rem; font-weight:700; }
+.card-bio{ font-size:0.88rem; color:#ddd; margin-top:4px; }
+
+.swipe-actions{
+  display:flex;
+  justify-content:center;
+  gap:26px;
+  margin-top:22px;
+}
+.swipe-btn{
+  width:60px; height:60px;
+  border-radius:50%;
+  border:1px solid #2a2d31;
+  background:var(--card);
+  color:var(--ink);
+  font-size:1.5rem;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.swipe-btn.pass:hover{ border-color:var(--accent1); color:var(--accent1); }
+.swipe-btn.like:hover{ border-color:var(--accent2); color:var(--accent2); }
+.swipe-btn.like{ background:var(--grad); border:none; color:#fff; }
+
+.toast{
+  margin-top:14px;
+  font-size:0.8rem;
+  color:var(--ink-soft);
+  min-height:1.2em;
+}
+
+/* ---------- Match ---------- */
+#view-match{ margin-top:16vh; text-align:center; }
+.waiting-dots{ font-size:1.6rem; letter-spacing:4px; color:var(--ink-soft); margin-bottom:10px; }
+.match-banner{ display:none; flex-direction:column; align-items:center; }
+.match-banner.show{ display:flex; }
+.match-title{
+  font-size:2rem;
+  font-weight:800;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  margin-bottom:18px;
+}
+.match-avatars{ display:flex; margin-bottom:22px; }
+.match-avatars img{
+  width:120px; height:120px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid var(--bg);
+}
+.match-btn{
+  background:var(--grad);
+  border:none;
+  border-radius:10px;
+  padding:14px 24px;
+  color:#fff;
+  font-weight:600;
+  font-size:0.95rem;
+  cursor:pointer;
+}
+
+/* ---------- Chat ---------- */
+#view-chat{ align-items:stretch; }
+.chat-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-bottom:14px;
+  border-bottom:1px solid #2a2d31;
+  margin-bottom:16px;
+}
+.chat-header img{ width:44px; height:44px; border-radius:50%; object-fit:cover; }
+.chat-header .name{ font-weight:700; }
+.chat-header .status{ font-size:0.75rem; color:var(--ink-soft); }
+
+.chat-thread{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:280px;
+}
+.bubble{
+  max-width:78%;
+  padding:10px 14px;
+  border-radius:16px;
+  font-size:0.92rem;
+  line-height:1.4;
+}
+.bubble.them{ background:var(--card); align-self:flex-start; border-bottom-left-radius:4px; }
+.bubble.me{ background:var(--grad); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+.typing{
+  align-self:flex-start;
+  color:var(--ink-soft);
+  font-size:0.85rem;
+  padding:2px 4px;
+}
+
+.chat-input-row{
+  display:flex;
+  gap:8px;
+  margin-top:16px;
+}
+.chat-input{
+  flex:1;
+  background:var(--card);
+  border:1px solid #2a2d31;
+  border-radius:20px;
+  padding:11px 16px;
+  color:var(--ink);
+  font-size:0.92rem;
+}
+.chat-input:focus{ outline:none; border-color:var(--accent2); }
+.chat-send{
+  background:var(--grad);
+  border:none;
+  border-radius:50%;
+  width:44px; height:44px;
+  color:#fff;
+  font-size:1.1rem;
+  cursor:pointer;
+  flex:0 0 auto;
+}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="view active" id="view-login">
+  <div class="logo">Nocturne</div>
+  <div class="tagline">Rencontres discrètes. Chicago.</div>
+  <div class="login-box">
+    <div class="login-label">Choisis ton pseudo</div>
+    <input type="text" class="login-input" id="pseudoInput" placeholder="ex : NightOwl_312" maxlength="24">
+    <div class="login-error" id="loginError"></div>
+    <button class="login-btn" id="loginBtn">Entrer</button>
+  </div>
+</div>
+
+<!-- ================= SWIPE ================= -->
+<div class="view" id="view-swipe">
+  <div class="topbar">
+    <div class="logo">Nocturne</div>
+    <div class="account-chip" id="accountChip">Connecté</div>
+  </div>
+  <div class="card" id="card">
+    <img id="cardImg" src="" alt="">
+    <div class="card-info">
+      <div class="card-name" id="cardName"></div>
+      <div class="card-bio" id="cardBio"></div>
+    </div>
+  </div>
+  <div class="swipe-actions">
+    <button class="swipe-btn pass" id="passBtn" title="Passer">&#10005;</button>
+    <button class="swipe-btn like" id="likeBtn" title="Aimer">&#9829;</button>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<!-- ================= MATCH ================= -->
+<div class="view" id="view-match">
+  <div id="waitingBlock">
+    <div class="waiting-dots">···</div>
+    <div class="tagline">Nocturne analyse la compatibilité</div>
+  </div>
+  <div class="match-banner" id="matchBanner">
+    <div class="match-title">C'est un match !</div>
+    <div class="match-avatars">
+      <img id="matchAvatarThem" src="" alt="">
+    </div>
+    <button class="match-btn" id="goToChatBtn">Envoyer un message</button>
+  </div>
+</div>
+
+<!-- ================= CHAT ================= -->
+<div class="view" id="view-chat">
+  <div class="chat-header">
+    <img id="chatAvatar" src="" alt="">
+    <div>
+      <div class="name" id="chatName"></div>
+      <div class="status">En ligne</div>
+    </div>
+  </div>
+  <div class="chat-thread" id="chatThread"></div>
+  <div class="chat-input-row">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Écris un message...">
+    <button class="chat-send" id="chatSendBtn">&#10148;</button>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION — à modifier entre les sessions
+   ===================================================================== */
+const TARGET_ID = "lasuceuse";        // le profil du vampire
+const MATCH_DELAY_MS = 5000;          // délai avant le "match" après avoir liké la cible
+const REPLY_DELAY_MS = 1400;          // délai avant chaque réponse scriptée dans le chat
+
+const PROFILES = [
+  { id:"tom",        name:"Tom, 33",       bio:"Feux de camp et bières tièdes, tu embarques ?", photo:"profile-tom.jpg" },
+  { id:"sacha",      name:"Sacha, 29",     bio:"Costume le jour, n'importe quoi la nuit.", photo:"profile-sacha.jpg" },
+  { id:"mel",        name:"Mel, 26",       bio:"Toujours partante pour sauter dans le vide (et le reste).", photo:"profile-mel.jpg" },
+  { id:"lasuceuse",  name:"La Suceuse",    bio:"Discrète. Nocturne. Jamais bien loin.", photo:"profile-lasuceuse.png" },
+  { id:"dave",       name:"Dave, 35",      bio:"Salle de sport le matin, after jusqu'au bout de la nuit.", photo:"profile-dave.jpg" },
+];
+
+// script de la conversation avec le vampire — chaque ligne apparaît après un message du joueur
+const CHAT_SCRIPT = [
+  "Ravie qu'on matche 😏 Tu es du coin ?",
+  "J'aime bien improviser... ça te dit qu'on se voie ce soir ?",
+  "Retrouve-moi à Nichols Park, disons... 22h. J'aime les lieux publics, c'est plus sûr. Et si ça colle entre nous... je te promets que je ne suis pas timide, plutôt ouverte à tout."
+];
+
+let pseudo = "";
+let deckIndex = 0;
+let scriptIndex = 0;
+
+function setView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ---------- Login ---------- */
+document.getElementById('loginBtn').addEventListener('click', tryLogin);
+document.getElementById('pseudoInput').addEventListener('keydown', e => { if(e.key === 'Enter') tryLogin(); });
+
+function tryLogin(){
+  const val = document.getElementById('pseudoInput').value.trim();
+  if(!val){
+    document.getElementById('loginError').textContent = "Entre un pseudo pour continuer";
+    return;
+  }
+  pseudo = val;
+  document.getElementById('accountChip').textContent = "Connecté : " + pseudo;
+  renderCard();
+  setView('view-swipe');
+}
+
+/* ---------- Swipe ---------- */
+function renderCard(){
+  const p = PROFILES[deckIndex % PROFILES.length];
+  document.getElementById('cardImg').src = p.photo;
+  document.getElementById('cardName').textContent = p.name;
+  document.getElementById('cardBio').textContent = p.bio;
+  document.getElementById('toast').textContent = "";
+}
+renderCard();
+
+document.getElementById('passBtn').addEventListener('click', () => {
+  deckIndex++;
+  renderCard();
+});
+
+document.getElementById('likeBtn').addEventListener('click', () => {
+  const p = PROFILES[deckIndex % PROFILES.length];
+  if(p.id === TARGET_ID){
+    startMatchSequence(p);
+  } else {
+    document.getElementById('toast').textContent = "Vu — pas encore de réponse";
+    deckIndex++;
+    setTimeout(renderCard, 500);
+  }
+});
+
+/* ---------- Match ---------- */
+function startMatchSequence(targetProfile){
+  document.getElementById('waitingBlock').style.display = 'block';
+  document.getElementById('matchBanner').classList.remove('show');
+  setView('view-match');
+
+  setTimeout(() => {
+    playMatchSound();
+    document.getElementById('waitingBlock').style.display = 'none';
+    document.getElementById('matchAvatarThem').src = targetProfile.photo;
+    document.getElementById('matchBanner').classList.add('show');
+  }, MATCH_DELAY_MS);
+}
+
+function playMatchSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [660, 880];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime + i*0.15);
+      gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + i*0.15 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.15 + 0.35);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + i*0.15);
+      osc.stop(ctx.currentTime + i*0.15 + 0.4);
+    });
+  } catch(e){}
+}
+
+document.getElementById('goToChatBtn').addEventListener('click', () => {
+  const target = PROFILES.find(p => p.id === TARGET_ID);
+  document.getElementById('chatAvatar').src = target.photo;
+  document.getElementById('chatName').textContent = target.name;
+  document.getElementById('chatThread').innerHTML = "";
+  scriptIndex = 0;
+  setView('view-chat');
+  setTimeout(() => sendHerMessage(), 700);
+});
+
+/* ---------- Chat ---------- */
+function appendBubble(text, who){
+  const thread = document.getElementById('chatThread');
+  const div = document.createElement('div');
+  div.className = "bubble " + who;
+  div.textContent = text;
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function sendHerMessage(){
+  if(scriptIndex < CHAT_SCRIPT.length){
+    appendBubble(CHAT_SCRIPT[scriptIndex], "them");
+    scriptIndex++;
+  }
+}
+
+function handleSend(){
+  const input = document.getElementById('chatInput');
+  const val = input.value.trim();
+  if(!val) return;
+  appendBubble(val, "me");
+  input.value = "";
+  if(scriptIndex < CHAT_SCRIPT.length){
+    const thread = document.getElementById('chatThread');
+    const typing = document.createElement('div');
+    typing.className = "typing";
+    typing.textContent = "···";
+    typing.id = "typingIndicator";
+    thread.appendChild(typing);
+    thread.scrollTop = thread.scrollHeight;
+    setTimeout(() => {
+      const t = document.getElementById('typingIndicator');
+      if(t) t.remove();
+      sendHerMessage();
+    }, REPLY_DELAY_MS);
+  }
+}
+
+document.getElementById('chatSendBtn').addEventListener('click', handleSend);
+document.getElementById('chatInput').addEventListener('keydown', e => { if(e.key === 'Enter') handleSend(); });
+</script>
+</body>
+</html>
