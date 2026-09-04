@@ -519,7 +519,8 @@ const PROFILES = [
 const CHAT_SCRIPT = [
   "Ravie qu'on matche 😏 Tu es du coin ?",
   "J'aime bien improviser... ça te dit qu'on se voie ce soir ?",
-  "Retrouve-moi à Nichols Park, disons... 22h. J'aime les lieux publics, c'est plus sûr. Et si ça colle entre nous... je te promets que je ne suis pas timide, plutôt ouverte à tout."
+  "Retrouve-moi à Nichols Park, disons... 22h. J'aime les lieux publics, c'est plus sûr. Et si ça colle entre nous... je te promets que je ne suis pas timide, plutôt ouverte à tout.",
+  "Ok t'es rapide, ça me plaît. Je vais aller me préparer et me rendre désirable pour toi... à tout à l'heure 😉"
 ];
 
 let pseudo = "";
@@ -648,6 +649,8 @@ document.getElementById('goToChatBtn').addEventListener('click', () => {
   document.getElementById('chatAvatar').src = target.photo;
   document.getElementById('chatName').textContent = target.name;
   document.getElementById('chatThread').innerHTML = "";
+  const statusEl = document.querySelector('#view-chat .status');
+  if(statusEl) statusEl.textContent = "En ligne";
   scriptIndex = 0;
   setView('view-chat');
   setTimeout(() => sendHerMessage(), 700);
@@ -668,7 +671,15 @@ function sendHerMessage(){
     playMatchSound();
     appendBubble(CHAT_SCRIPT[scriptIndex], "them");
     scriptIndex++;
+    if(scriptIndex === CHAT_SCRIPT.length){
+      setTimeout(setOffline, 1200);
+    }
   }
+}
+
+function setOffline(){
+  const statusEl = document.querySelector('#view-chat .status');
+  if(statusEl) statusEl.textContent = "N'est plus en ligne";
 }
 
 function handleSend(){
