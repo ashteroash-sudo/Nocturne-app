@@ -29,6 +29,127 @@ body{
 
 .view{ display:none; width:100%; max-width:380px; }
 .view.active{ display:flex; flex-direction:column; align-items:center; }
+#view-swipe.view{ max-width:1100px; }
+
+/* ---------- Loading ---------- */
+#view-loading{ margin-top:22vh; text-align:center; }
+.loading-logo{
+  font-size:2.6rem;
+  font-weight:800;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation: pulse 1.1s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{ transform:scale(1); opacity:1; }
+  50%{ transform:scale(1.06); opacity:0.75; }
+}
+.loading-msg{ color:var(--ink-soft); font-size:0.85rem; margin-top:18px; min-height:1.2em; }
+
+/* ---------- Swipe layout (grid + pubs) ---------- */
+.swipe-layout{
+  display:grid;
+  grid-template-columns:1fr;
+  grid-template-areas: "swipe" "adleft" "adright" "selection";
+  gap:22px;
+  width:100%;
+  max-width:380px;
+  margin:0 auto;
+}
+@media (min-width:900px){
+  .swipe-layout{
+    max-width:1080px;
+    grid-template-columns: 210px 1fr 210px;
+    grid-template-areas: "adleft swipe adright" "selection selection selection";
+    align-items:start;
+  }
+}
+.swipe-col{ grid-area:swipe; display:flex; flex-direction:column; align-items:center; width:100%; }
+
+.ad-box{
+  background:var(--card);
+  border:1px solid #2a2d31;
+  border-radius:14px;
+  padding:16px;
+}
+.ad-left{ grid-area:adleft; }
+.ad-right{ grid-area:adright; }
+.ad-title{ font-size:0.9rem; font-weight:700; margin-bottom:8px; }
+.ad-price{
+  font-size:1.3rem;
+  font-weight:800;
+  background:var(--grad);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  margin-bottom:10px;
+}
+.ad-benefits{ list-style:none; margin:0 0 14px; padding:0; font-size:0.78rem; color:var(--ink-soft); }
+.ad-benefits li{ padding:4px 0 4px 18px; position:relative; }
+.ad-benefits li::before{ content:"✓"; position:absolute; left:0; color:var(--accent2); }
+.ad-btn{
+  width:100%;
+  background:var(--grad);
+  border:none;
+  border-radius:8px;
+  padding:10px;
+  color:#fff;
+  font-weight:600;
+  font-size:0.8rem;
+  cursor:pointer;
+}
+.testi{ margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #22252a; }
+.testi:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.testi-name{ font-size:0.78rem; font-weight:700; color:var(--accent1); }
+.testi-quote{ font-size:0.78rem; color:var(--ink-soft); margin-top:2px; font-style:italic; }
+
+.selection-banner{ grid-area:selection; background:var(--card); border:1px solid #2a2d31; border-radius:14px; padding:16px 18px; width:100%; }
+.selection-title{ font-size:0.9rem; font-weight:700; margin-bottom:4px; }
+.selection-sub{ font-size:0.75rem; color:var(--ink-soft); margin-bottom:12px; }
+.selection-chips{ display:flex; flex-wrap:wrap; gap:10px; }
+.chip{
+  background:#1e2126;
+  border:1px solid #2a2d31;
+  border-radius:20px;
+  padding:8px 16px;
+  font-size:0.8rem;
+  color:var(--ink);
+  cursor:pointer;
+}
+.chip:hover{ border-color:var(--accent2); }
+
+/* ---------- Gate modal ---------- */
+.gate-overlay{
+  display:none;
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.gate-overlay.show{ display:flex; }
+.gate-box{
+  background:var(--card);
+  border:1px solid #2a2d31;
+  border-radius:16px;
+  padding:26px 24px;
+  max-width:320px;
+  text-align:center;
+}
+.gate-title{ font-weight:800; font-size:1.1rem; margin-bottom:8px; }
+.gate-sub{ font-size:0.85rem; color:var(--ink-soft); margin-bottom:18px; }
+.gate-close{
+  background:none;
+  border:1px solid #2a2d31;
+  border-radius:8px;
+  padding:9px 18px;
+  color:var(--ink-soft);
+  font-size:0.85rem;
+  cursor:pointer;
+}
 
 .logo{
   font-size:2.6rem;
@@ -247,24 +368,89 @@ body{
   </div>
 </div>
 
+<!-- ================= LOADING ================= -->
+<div class="view" id="view-loading">
+  <div class="loading-logo">Nocturne</div>
+  <div class="loading-msg" id="loadingMsg">Analyse de ton profil...</div>
+</div>
+
 <!-- ================= SWIPE ================= -->
 <div class="view" id="view-swipe">
-  <div class="topbar">
-    <div class="logo">Nocturne</div>
-    <div class="account-chip" id="accountChip">Connecté</div>
-  </div>
-  <div class="card" id="card">
-    <img id="cardImg" src="" alt="">
-    <div class="card-info">
-      <div class="card-name" id="cardName"></div>
-      <div class="card-bio" id="cardBio"></div>
+  <div class="swipe-layout">
+
+    <div class="ad-box ad-left">
+      <div class="ad-title">Nocturne Superchat</div>
+      <div class="ad-price">15 $/mois</div>
+      <ul class="ad-benefits">
+        <li>Vois qui t'a déjà liké</li>
+        <li>Profils illimités, sans pause</li>
+        <li>Mode fantôme (navigue incognito)</li>
+        <li>Priorité dans les recommandations</li>
+        <li>Accès aux préférences avancées</li>
+      </ul>
+      <button class="ad-btn" id="superchatBtn">Passer Superchat</button>
     </div>
+
+    <div class="swipe-col">
+      <div class="topbar">
+        <div class="logo">Nocturne</div>
+        <div class="account-chip" id="accountChip">Connecté</div>
+      </div>
+      <div class="card" id="card">
+        <img id="cardImg" src="" alt="">
+        <div class="card-info">
+          <div class="card-name" id="cardName"></div>
+          <div class="card-bio" id="cardBio"></div>
+        </div>
+      </div>
+      <div class="swipe-actions">
+        <button class="swipe-btn pass" id="passBtn" title="Passer">&#10005;</button>
+        <button class="swipe-btn like" id="likeBtn" title="Aimer">&#9829;</button>
+      </div>
+      <div class="toast" id="toast"></div>
+    </div>
+
+    <div class="ad-box ad-right">
+      <div class="ad-title">Ils ont trouvé l'amour sur Nocturne 💕</div>
+      <div class="testi">
+        <div class="testi-name">xXNightOwlXx</div>
+        <div class="testi-quote">"Nocturne m'a aidé à trouver l'amour ❤️"</div>
+      </div>
+      <div class="testi">
+        <div class="testi-name">ChiTownGuy88</div>
+        <div class="testi-quote">"Super appli pour les plans cul, les gens sont select ici"</div>
+      </div>
+      <div class="testi">
+        <div class="testi-name">MidwaySoul</div>
+        <div class="testi-quote">"Matché en 10 minutes, toujours aussi dingue"</div>
+      </div>
+      <div class="testi">
+        <div class="testi-name">Bex_312</div>
+        <div class="testi-quote">"Discret, efficace, personne pose de questions"</div>
+      </div>
+    </div>
+
+    <div class="selection-banner">
+      <div class="selection-title">Sélection</div>
+      <div class="selection-sub">Affine tes préférences pour des rencontres plus... spécifiques.</div>
+      <div class="selection-chips">
+        <div class="chip" onclick="showGate()">Plan à trois</div>
+        <div class="chip" onclick="showGate()">Orgie</div>
+        <div class="chip" onclick="showGate()">Candaulisme</div>
+        <div class="chip" onclick="showGate()">JOI</div>
+      </div>
+    </div>
+
   </div>
-  <div class="swipe-actions">
-    <button class="swipe-btn pass" id="passBtn" title="Passer">&#10005;</button>
-    <button class="swipe-btn like" id="likeBtn" title="Aimer">&#9829;</button>
+</div>
+
+<!-- ================= GATE MODAL ================= -->
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-box">
+    <div class="gate-title">Tu n'es pas encore Super User</div>
+    <div class="gate-sub">Les préférences avancées sont réservées aux membres Superchat.</div>
+    <button class="gate-close" onclick="hideGate()">Fermer</button>
   </div>
-  <div class="toast" id="toast"></div>
 </div>
 
 <!-- ================= MATCH ================= -->
@@ -303,8 +489,16 @@ body{
    CONFIGURATION — à modifier entre les sessions
    ===================================================================== */
 const TARGET_ID = "lasuceuse";        // le profil du vampire
-const MATCH_DELAY_MS = 5000;          // délai avant le "match" après avoir liké la cible
-const REPLY_DELAY_MS = 1400;          // délai avant chaque réponse scriptée dans le chat
+const MATCH_DELAY_MS = 9000;          // délai avant le "match" après avoir liké la cible
+const REPLY_DELAY_MS = 13000;         // délai (tension) avant chaque réponse scriptée dans le chat
+const LOADING_DURATION_MS = 2600;     // durée de l'écran de chargement après le login
+
+const LOADING_MESSAGES = [
+  "Analyse de ton profil...",
+  "Calcul de compatibilité...",
+  "Chargement des célibataires du coin...",
+  "Vérification de ta réputation..."
+];
 
 const PROFILES = [
   { id:"tom",        name:"Tom, 33",       bio:"Feux de camp et bières tièdes, tu embarques ?", photo:"profile-tom.jpg" },
@@ -342,9 +536,46 @@ function tryLogin(){
   }
   pseudo = val;
   document.getElementById('accountChip').textContent = "Connecté : " + pseudo;
-  renderCard();
-  setView('view-swipe');
+  runLoadingSequence();
 }
+
+function runLoadingSequence(){
+  setView('view-loading');
+  playInviteSound();
+  let i = 0;
+  document.getElementById('loadingMsg').textContent = LOADING_MESSAGES[0];
+  const interval = setInterval(() => {
+    i = (i + 1) % LOADING_MESSAGES.length;
+    document.getElementById('loadingMsg').textContent = LOADING_MESSAGES[i];
+  }, 650);
+  setTimeout(() => {
+    clearInterval(interval);
+    renderCard();
+    setView('view-swipe');
+  }, LOADING_DURATION_MS);
+}
+
+function playInviteSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.35);
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.55);
+  } catch(e){}
+}
+
+/* ---------- Gate modal (fluff prédateur) ---------- */
+function showGate(){ document.getElementById('gateOverlay').classList.add('show'); }
+function hideGate(){ document.getElementById('gateOverlay').classList.remove('show'); }
+document.getElementById('superchatBtn').addEventListener('click', showGate);
 
 /* ---------- Swipe ---------- */
 function renderCard(){
@@ -427,6 +658,7 @@ function appendBubble(text, who){
 
 function sendHerMessage(){
   if(scriptIndex < CHAT_SCRIPT.length){
+    playMatchSound();
     appendBubble(CHAT_SCRIPT[scriptIndex], "them");
     scriptIndex++;
   }
